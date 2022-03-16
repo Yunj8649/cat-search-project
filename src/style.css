@@ -88,6 +88,11 @@
   .ImageInfo .content-wrapper img {
     width: 100%;
   }
+
+  .ImageInfo .content-wrapper button.close {
+    border: none;
+    background: none;
+  }
   
   @media screen and (max-width: 992px) {
     .SearchResult {
