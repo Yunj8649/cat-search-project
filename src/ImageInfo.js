@@ -1,14 +1,16 @@
 class ImageInfo {
     $imageInfo = null;
     data = null;
+    onClose = null;
   
-    constructor({ $target, data }) {
+    constructor({ $target, data, onClose }) {
       const $imageInfo = document.createElement("div");
       $imageInfo.className = "ImageInfo";
       this.$imageInfo = $imageInfo;
       $target.appendChild($imageInfo);
   
       this.data = data;
+      this.onClose = onClose;
   
       this.render();
     }
@@ -20,11 +22,7 @@ class ImageInfo {
   
     async render () {
       if (this.data.visible) {
-        const { id, name, url } = this.data.image;
-        
-        const response = await api.fetchCat(id);
-        if (!response) return;
-        const { origin, temperament } = response.data;
+        const { id, name, url, origin, temperament } = this.data.image;
   
         this.$imageInfo.innerHTML = `
           <div class="content-wrapper">
@@ -41,13 +39,13 @@ class ImageInfo {
         this.$imageInfo.style.display = "block";
         
         this.$imageInfo.querySelector(".close").addEventListener("click", () => {
-          this.$imageInfo.style.display = "none";
+          this.onClose()
         });
-        // this.$imageInfo.addEventListener("keydown", e => {
-        //   if (e.keyCode === 27) {
-        //     this.$imageInfo.style.display = "none";
-        //   }
-        // });
+        window.addEventListener("keydown", e => {
+          if (e.keyCode === 27) {
+            this.onClose()
+          }
+        });
       } else {
         this.$imageInfo.style.display = "none";
       }

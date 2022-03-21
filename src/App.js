@@ -7,6 +7,16 @@ class App {
   constructor($target) {
     this.$target = $target;
 
+    const onSearch = async(keyword) => {
+      try {
+        this.searchResult.setIsLoading(true);
+        const response = await api.fetchCats(keyword);
+        console.log('response :' ,response)
+        this.searchResult.setIsLoading(false);
+        this.setState(response.data);
+      } catch(e) {/** */}
+    }
+
     this.themeCheckbox = new ThemeCheckbox({
       $target,
       onToggle: check => {
@@ -20,11 +30,14 @@ class App {
 
     this.searchInput = new SearchInput({
       $target,
-      onSearch: keyword => {
-        api.fetchCats(keyword).then(({ data }) => this.setState(data));
-      }
+      onSearch
     });
     this.searchInput.$searchInput.focus()
+
+    this.searchKeyword = new SearchKeyword({
+      $target,
+      onSearch
+    });
 
     this.catBanner = new CatBanner({
       $target
@@ -33,12 +46,19 @@ class App {
     this.searchResult = new SearchResult({
       $target,
       initialData: this.data,
-      onClick: image => {
-        this.imageInfo.setState({
-          visible: true,
-          image
-        });
-      }
+      onClick: async (image) => {
+        try {
+          const { id } = image;
+          const response = await api.fetchCat(id);
+          this.imageInfo.setState({
+            visible: true,
+            image: {
+              ...image,
+              ...response.data
+            }
+          });
+        } catch (e) {/** */}
+      },
     });
 
     this.imageInfo = new ImageInfo({
@@ -46,12 +66,18 @@ class App {
       data: {
         visible: false,
         image: null
+      },
+      onClose: () => {
+        this.imageInfo.setState({
+          visible: false,
+          image: null
+        });
       }
     });
   }
 
   setState(nextData) {
-    console.log(this);
+    console.log('this :: ', this);
     this.data = nextData;
     this.searchResult.setState(nextData);
   }
